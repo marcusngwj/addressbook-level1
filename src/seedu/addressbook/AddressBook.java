@@ -452,7 +452,7 @@ public class AddressBook {
 	 * the argument keywords
 	 */
 	private static ArrayList<HashMap<PersonProperty, String>> findPersons(String commandArgs){
-		final Set<String> keywords = extractKeywordsFromFindPersonArgs(commandArgs);
+		final Set<String> keywords = extractKeywordsFromFindPersonArgs(commandArgs.toUpperCase());
 		final ArrayList<HashMap<PersonProperty, String>> personsFound = getPersonsWithNameContainingAnyKeyword(
 				keywords);
 		return personsFound;
@@ -496,7 +496,7 @@ public class AddressBook {
 			Collection<String> keywords) {
 		final ArrayList<HashMap<PersonProperty, String>> matchedPersons = new ArrayList<>();
 		for (HashMap<PersonProperty, String> person : getAllPersonsInAddressBook()) {
-			final Set<String> wordsInName = new HashSet<>(splitByWhitespace(getPersonName(person)));
+			final Set<String> wordsInName = new HashSet<>(splitByWhitespace(getPersonName(person).toUpperCase()));
 			if (!Collections.disjoint(wordsInName, keywords)) {
 				matchedPersons.add(person);
 			}
