@@ -185,78 +185,10 @@ public class AddressBook {
 	 * ====================================================================
 	 */
 	public static void main(String[] args) {
-		showToUser("===================================================", 
-				"===================================================", 
-				"AddessBook Level 1 - Version 1.0", 
-				"Welcome to your Address Book!", 
-				"===================================================");
-		if (args.length >= 2) {
-			showToUser("Too many parameters! Correct program argument format:"
-					+ System.lineSeparator() + "|| " + "\tjava AddressBook" + System.lineSeparator() + 
-					"|| " + "\tjava AddressBook [custom storage file path]");
-			showToUser("Exiting Address Book... Good bye!", 
-					"===================================================", 
-					"===================================================");
-			System.exit(0);
-		}
-
-		if (args.length == 1) {
-			if (!(args[0].endsWith(".txt"))) {
-				showToUser(String.format("The given file name [%1$s] is not a valid file name!", args[0]));
-				showToUser("Exiting Address Book... Good bye!", 
-						"===================================================", 
-						"===================================================");
-				System.exit(0);
-			}
-			
-			storageFilePath = args[0];
-			final File storageFile = new File(args[0]);
-			if (storageFile.exists()) {
-				return;
-			}
-
-			showToUser(String.format("Storage file missing: %1$s", args[0]));
-
-			try {
-				storageFile.createNewFile();
-				showToUser(String.format("Created new empty storage file: %1$s", args[0]));
-			} catch (IOException ioe) {
-				showToUser(String.format("Created new empty storage file: %1$s", args[0]));
-				showToUser("Exiting Address Book... Good bye!", 
-						"===================================================", 
-						"===================================================");
-				System.exit(0);
-			}
-		}
-
-		if (args.length == 0) {
-			showToUser("Using default storage file : " + "addressbook.txt");
-			storageFilePath = "addressbook.txt";
-			final File storageFile = new File("addressbook.txt");
-			if (storageFile.exists()) {
-				return;
-			}
-
-			showToUser(String.format("Storage file missing: %1$s", "addressbook.txt"));
-
-			try {
-				storageFile.createNewFile();
-				showToUser(String.format("Created new empty storage file: %1$s", "addressbook.txt"));
-			} catch (IOException ioe) {
-				showToUser(String.format("Error: unable to create file: %1$s", "addressbook.txt"));
-				showToUser("Exiting Address Book... Good bye!", 
-						"===================================================", 
-						"===================================================");
-				System.exit(0);
-			}
-		}
-		initialiseAddressBookModel(loadPersonsFromFile(storageFilePath));
-		while (true) {
-			String userCommand = getUserInput();
-			echoUserCommand(userCommand);
-			String feedback = executeCommand(userCommand);
-			showResultToUser(feedback);
-		}
+		showWelcomeMessage();
+		processProgramArgs(args);
+		loadDataFromStorage();
+		run();
 	}
 
 	/**
