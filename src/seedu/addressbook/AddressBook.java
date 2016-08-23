@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
 
+
 /* ==============NOTE TO STUDENTS======================================
  * This class header comment below is brief because details of how to
  * use this class are documented elsewhere.
@@ -94,6 +95,9 @@ public class AddressBook {
 	private static final String COMMAND_ADD_PARAMETERS = "NAME " + PERSON_DATA_PREFIX_PHONE + "PHONE_NUMBER "
 			+ PERSON_DATA_PREFIX_EMAIL + "EMAIL";
 	private static final String COMMAND_ADD_EXAMPLE = COMMAND_ADD_WORD + " John Doe p/98765432 e/johnd@gmail.com";
+	
+	private static final String COMMAND_EDIT_WORD = "edit";
+	private static final String MESSAGE_EDITED = "Updated: %1$s, Phone: %2$s, Email: %3$s";
 
 	private static final String COMMAND_FIND_WORD = "find";
 	private static final String COMMAND_FIND_DESC = "Finds all persons whose names contain any of the specified "
@@ -104,6 +108,8 @@ public class AddressBook {
 	private static final String COMMAND_LIST_WORD = "list";
 	private static final String COMMAND_LIST_DESC = "Displays all persons as a list with index numbers.";
 	private static final String COMMAND_LIST_EXAMPLE = COMMAND_LIST_WORD;
+	
+	private static final String COMMAND_SORT_WORD = "sort";
 
 	private static final String COMMAND_DELETE_WORD = "delete";
 	private static final String COMMAND_DELETE_DESC = "Deletes a person identified by the index number used in "
@@ -331,10 +337,14 @@ public class AddressBook {
 		switch (commandType) {
 		case COMMAND_ADD_WORD:
 			return executeAddPerson(commandArgs);
+		case COMMAND_EDIT_WORD:
+			return executeEditPerson(commandArgs);
 		case COMMAND_FIND_WORD:
 			return executeFindPersons(commandArgs);
 		case COMMAND_LIST_WORD:
 			return executeListAllPersonsInAddressBook();
+		case COMMAND_SORT_WORD:
+			return executeSortPersonsInAddressBook();
 		case COMMAND_DELETE_WORD:
 			return executeDeletePerson(commandArgs);
 		case COMMAND_CLEAR_WORD:
@@ -398,6 +408,16 @@ public class AddressBook {
 		addPersonToAddressBook(personToAdd);
 		return getMessageForSuccessfulAddPerson(personToAdd);
 	}
+	
+    private static String executeEditPerson(String commandArgs){
+		final ArrayList<HashMap<PersonProperty, String>> personsFound = findPersons(commandArgs);
+		HashMap<PersonProperty, String> personFound= personsFound.get(0);
+    	return getMessageForSuccessfulUpdate(personFound);
+    }
+    
+    private static String getMessageForSuccessfulUpdate(HashMap<PersonProperty, String> person){
+    	return String.format(MESSAGE_EDITED, getPersonName(person), getPersonPhone(person), getPersonEmail(person));
+    }
 
 	/**
 	 * Constructs a feedback message for a successful add person command
@@ -422,11 +442,20 @@ public class AddressBook {
 	 * @return feedback display message for the operation result
 	 */
 	private static String executeFindPersons(String commandArgs) {
+		ArrayList<HashMap<PersonProperty, String>> personsFound = findPersons(commandArgs);
+		showToUser(personsFound);
+		return getMessageForPersonsDisplayedSummary(personsFound);
+	}
+	
+	/**
+	 * Finds and create a list of all persons in address book whose name contains any of
+	 * the argument keywords
+	 */
+	private static ArrayList<HashMap<PersonProperty, String>> findPersons(String commandArgs){
 		final Set<String> keywords = extractKeywordsFromFindPersonArgs(commandArgs);
 		final ArrayList<HashMap<PersonProperty, String>> personsFound = getPersonsWithNameContainingAnyKeyword(
 				keywords);
-		showToUser(personsFound);
-		return getMessageForPersonsDisplayedSummary(personsFound);
+		return personsFound;
 	}
 
 	/**
@@ -568,6 +597,29 @@ public class AddressBook {
 	 */
 	private static String executeListAllPersonsInAddressBook() {
 		ArrayList<HashMap<PersonProperty, String>> toBeDisplayed = getAllPersonsInAddressBook();
+		showToUser(toBeDisplayed);
+		return getMessageForPersonsDisplayedSummary(toBeDisplayed);
+	}
+	
+	/**
+	 * Display all persons in the address book to user; in lexicographical order
+	 * 
+	 * @return feedback display message for the operation result
+	 */
+	private static String executeSortPersonsInAddressBook(){
+		ArrayList<HashMap<PersonProperty, String>> originalList = getAllPersonsInAddressBook();
+		ArrayList<String> nameList = new ArrayList<String>();
+		for(HashMap<PersonProperty, String> person : originalList){
+			nameList.add(getPersonName(person));
+		}
+		Collections.sort(nameList);
+		ArrayList<HashMap<PersonProperty, String>> toBeDisplayed = new ArrayList<HashMap<PersonProperty, String>>();
+		for(String name : nameList){
+			final ArrayList<HashMap<PersonProperty, String>> personsFound = findPersons(name);
+			HashMap<PersonProperty, String> personFound = personsFound.get(0);
+			toBeDisplayed.add(personFound);
+		}
+		
 		showToUser(toBeDisplayed);
 		return getMessageForPersonsDisplayedSummary(toBeDisplayed);
 	}
@@ -1238,5 +1290,6 @@ public class AddressBook {
 	private static ArrayList<String> splitByWhitespace(String toSplit) {
 		return new ArrayList(Arrays.asList(toSplit.trim().split("\\s+")));
 	}
-
+	
+	
 }
